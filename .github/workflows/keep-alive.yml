@@ -1,0 +1,26 @@
+name: Keep Streamlit App Alive
+
+on:
+  schedule:
+    # Runs every 6 days at 12:00 UTC
+    - cron: '0 12 */6 * *'
+  workflow_dispatch: # Allows manual triggering
+
+jobs:
+  ping-app:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Streamlit App
+        run: |
+          echo "Pinging app to keep it alive..."
+          curl -s -o /dev/null -w "%{http_code}\n" https://handwritten-digit-generator-fkgm2v4f6npxpfrgj3mndl.streamlit.app/
+          echo "Ping completed at $(date)"
+          
+      - name: Test App Response
+        run: |
+          response=$(curl -s -o /dev/null -w "%{http_code}" https://handwritten-digit-generator-fkgm2v4f6npxpfrgj3mndl.streamlit.app/)
+          if [ $response -eq 200 ]; then
+            echo "✅ App is alive and responding"
+          else
+            echo "⚠️ App returned status code: $response"
+          fi
